@@ -608,6 +608,15 @@
   [el.revenue, el.aov].forEach((n) => n.addEventListener('input', render));
   [el.lrr, el.prr].forEach((n) => n.addEventListener('input', render));
 
+  document.querySelectorAll('.stepper__btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const input = btn.closest('.control').querySelector('input[type="number"]');
+      if (!input) return;
+      if (btn.dataset.step === 'up') input.stepUp(); else input.stepDown();
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  });
+
   el.tableBtn.addEventListener('click', () => {
     const open = el.tableBtn.getAttribute('aria-expanded') === 'true';
     el.tableBtn.setAttribute('aria-expanded', String(!open));
