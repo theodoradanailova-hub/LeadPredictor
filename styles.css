@@ -21,6 +21,7 @@
   --surface-3:     #243146;   /* hover */
   --border:        rgba(255, 255, 255, 0.075);  /* decorative card edge */
   --border-strong: #66748a;   /* form-control boundary — 3.46:1 on --surface-1 */
+  --icon:          #b6c3d3;   /* control affordances — 8.31:1 on --surface-2 */
 
   /* ink — text never wears a series color */
   --text-primary:   #eef3f9;
@@ -167,12 +168,10 @@ img { max-width: 100%; }
 
 .control--select::after {
   content: "";
-  position: absolute; right: 13px; top: 50%;
-  width: 8px; height: 8px;
-  margin-top: -4px;
-  border-right: 1.6px solid var(--text-muted);
-  border-bottom: 1.6px solid var(--text-muted);
-  transform: rotate(45deg) translateY(-25%);
+  position: absolute; right: 12px; top: 50%;
+  width: 16px; height: 16px;
+  margin-top: -8px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23b6c3d3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M4 6.4 8 10.4 12 6.4'/></svg>") no-repeat center / contain;
   pointer-events: none;
 }
 .control--select select {
@@ -190,12 +189,59 @@ img { max-width: 100%; }
 }
 .control--money input { padding-left: 8px; }
 
-/* native date/number affordances, tinted for dark */
+/* Native date/number affordances.
+   Every control icon — chevron, calendar, steppers — is a stroked SVG on a 1:1
+   viewBox, so stroke-width is the literal rendered width and all four share
+   one weight (1.6px), round caps and round joins. The stroke hard-codes
+   --icon, because a custom property can't be referenced inside a data: URI —
+   keep them in step if --icon changes. */
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(72%) sepia(9%) saturate(430%) hue-rotate(179deg) brightness(92%);
+  width: 16px; height: 16px;
+  opacity: 1;
+  cursor: pointer;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23b6c3d3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='2.4' y='3.4' width='11.2' height='10.2' rx='2'/><path d='M2.4 6.8h11.2M5.6 2.1v2.6M10.4 2.1v2.6'/></svg>") no-repeat center / contain;
+}
+/* The native spinner renders as a dark UA button whose glyph colour cannot be
+   set, so it is removed and replaced with real arrows in --icon. They mirror
+   native behaviour — not focusable, not exposed to AT — because the input
+   itself already steps with the arrow keys. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 10px;
+}
+.stepper__btn {
+  display: grid;
+  place-items: center;
+  width: 20px; height: 13px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
   cursor: pointer;
 }
-input[type="number"]::-webkit-inner-spin-button { opacity: .35; }
+.stepper__btn:hover { background: rgb(255 255 255 / 0.09); }
+.stepper__btn:active { background: rgb(255 255 255 / 0.15); }
+.stepper__btn::before {
+  content: "";
+  width: 12px; height: 12px;
+  background: no-repeat center / contain;
+}
+.stepper__btn[data-step="up"]::before {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23b6c3d3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M2.6 7.3 6 3.9 9.4 7.3'/></svg>");
+}
+.stepper__btn[data-step="down"]::before {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23b6c3d3' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M2.6 4.7 6 8.1 9.4 4.7'/></svg>");
+}
 
 .field-note {
   margin: 14px 0 0;
