@@ -253,6 +253,45 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   border-radius: var(--radius-sm);
 }
 
+/* ── Sidebar actions ───────────────────────────────────────────────────── */
+
+/* Stacked, not side by side: the sidebar leaves 220px of content width, and a
+   translated label ("Zurücksetzen", "Изтегли CSV") plus its icon does not fit
+   in half of that without wrapping. */
+.sidebar__actions {
+  display: grid;
+  gap: 9px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.btn:hover { background: var(--surface-3); color: var(--text-primary); }
+.btn:active { background: var(--surface-2); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Same stroked-icon language as the control affordances: 1.6px on a 1:1
+   viewBox, round caps and joins. Inline SVG here, so it can take currentColor
+   rather than hard-coding --icon the way the data: URIs above must. */
+.btn__icon { flex: none; width: 15px; height: 15px; color: var(--icon); }
+.btn:hover .btn__icon { color: var(--text-primary); }
+
 /* ── Stage ─────────────────────────────────────────────────────────────── */
 
 .stage {
