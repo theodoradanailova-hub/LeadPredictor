@@ -404,8 +404,16 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 .tile__head { display: flex; align-items: center; gap: 9px; }
 
-.tile__icon { display: grid; place-items: center; width: 18px; height: 18px; }
-.tile__icon svg { width: 100%; height: 100%; }
+.tile__icon {
+  display: grid; place-items: center;
+  flex: none;
+  width: 30px; height: 30px;
+  color: var(--stage-customers);
+  border-radius: 9px;
+  background: var(--track);
+  background: color-mix(in srgb, var(--swatch) var(--badge-mix, 22%), transparent);
+}
+.tile__icon svg { width: 18px; height: 18px; }
 
 .tile__label {
   margin: 0;
@@ -441,10 +449,9 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   transition: width .3s cubic-bezier(.4, 0, .2, 1);
 }
 
-.tile[data-stage="prospects"] { --swatch: var(--stage-prospects); }
-.tile[data-stage="leads"]     { --swatch: var(--stage-leads); }
+.tile[data-stage="prospects"] { --swatch: var(--stage-prospects); --badge-mix: 38%; }
+.tile[data-stage="leads"]     { --swatch: var(--stage-leads);     --badge-mix: 32%; }
 .tile[data-stage="customers"] { --swatch: var(--stage-customers); }
-.tile .tile__icon { color: var(--swatch); }
 
 /* ── Sliders ───────────────────────────────────────────────────────────── */
 
