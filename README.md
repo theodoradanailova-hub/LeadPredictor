@@ -125,7 +125,7 @@ also present as text, which is the documented exception to 1.4.11:
 
 ## Languages & currencies
 
-English, Български and Deutsch; USD, EUR, BGN and GBP. Numbers, currency and
+English, Български and Deutsch; USD, EUR and GBP. Numbers, currency and
 dates are formatted with `Intl` against the selected language's locale, so
 switching to Deutsch gives `10.000 €` and `40,00 %`-style output.
 
