@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LeadPredictor</title>
+<meta name="description" content="Work out how many prospects, leads and customers a campaign needs to hit its revenue target.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%233987e5'/><path d='M8 10h16l-6 7v6l-4 2v-8z' fill='%23fff'/></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#results">Skip to results</a>
+
+<div class="app">
+
+  <!-- ── Brand ─────────────────────────────────────────────────────── -->
+  <header class="brand">
+    <span class="brand__mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3.5 5.2h17L14 13.4v5.1l-4 2.3v-7.4z" fill="currentColor"/></svg>
+    </span>
+    <h1 class="brand__name"><strong>Lead</strong>Predictor</h1>
+  </header>
+
+  <!-- ── Inputs ────────────────────────────────────────────────────── -->
+  <aside class="panel sidebar" aria-labelledby="sidebar-h">
+    <h2 id="sidebar-h" class="sr-only">Campaign inputs</h2>
+
+    <div class="field">
+      <label for="f-language" data-i18n="language">Language</label>
+      <div class="control control--select">
+        <select id="f-language">
+          <option value="en">🇺🇸&nbsp; English</option>
+          <option value="bg">🇧🇬&nbsp; Български</option>
+          <option value="de">🇩🇪&nbsp; Deutsch</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-currency" data-i18n="currency">Currency</label>
+      <div class="control control--select">
+        <select id="f-currency">
+          <option value="USD">$ US Dollar</option>
+          <option value="EUR">€ Euro</option>
+          <option value="BGN">лв. Bulgarian Lev</option>
+          <option value="GBP">£ British Pound</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-start" data-i18n="campaignStart">Campaign Start</label>
+      <div class="control"><input type="date" id="f-start" value="2026-05-08"></div>
+    </div>
+
+    <div class="field">
+      <label for="f-end" data-i18n="campaignEnd">Campaign End</label>
+      <div class="control"><input type="date" id="f-end" value="2026-11-04"></div>
+    </div>
+
+    <div class="field">
+      <label for="f-revenue" data-i18n="totalRevenue">Total Revenue</label>
+      <div class="control control--money">
+        <span class="control__prefix" data-currency-symbol aria-hidden="true">$</span>
+        <input type="number" id="f-revenue" min="0" step="100" value="10000" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-aov" data-i18n="avgOrderValue">Avg. Order Value</label>
+      <div class="control control--money">
+        <span class="control__prefix" data-currency-symbol aria-hidden="true">$</span>
+        <input type="number" id="f-aov" min="1" step="10" value="1000" inputmode="decimal">
+      </div>
+    </div>
+
+    <p class="field-note" id="date-warning" role="status" hidden></p>
+  </aside>
+
+  <!-- ── Results ───────────────────────────────────────────────────── -->
+  <main class="stage" id="results">
+
+    <section class="panel chart-card" aria-labelledby="chart-h">
+      <div class="card-head">
+        <div>
+          <h2 id="chart-h" class="card-title" data-i18n="chartTitle">Cumulative funnel by month</h2>
+          <p class="card-sub" id="chart-sub"></p>
+        </div>
+        <ul class="legend" id="legend"></ul>
+      </div>
+
+      <div class="chart-wrap">
+        <div id="chart" class="chart" role="img" aria-labelledby="chart-h" aria-describedby="chart-desc"></div>
+        <p id="chart-desc" class="sr-only"></p>
+        <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true"></div>
+      </div>
+
+      <button type="button" class="table-toggle" id="table-toggle" aria-expanded="false" aria-controls="table-view">
+        <span data-i18n="showTable">Show data table</span>
+      </button>
+      <div id="table-view" class="table-view" hidden></div>
+    </section>
+
+    <section class="tiles" aria-labelledby="tiles-h">
+      <h2 id="tiles-h" class="sr-only">Predicted funnel totals</h2>
+
+      <article class="panel tile" data-stage="prospects">
+        <header class="tile__head">
+          <span class="tile__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4.2l1.8 2h9A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" fill="currentColor"/></svg>
+          </span>
+          <h3 class="tile__label" data-i18n="prospects">Prospects</h3>
+          <span class="tile__pct" data-role="pct">100%</span>
+        </header>
+        <p class="tile__value" data-role="value">0</p>
+        <div class="meter" role="presentation"><span class="meter__fill" data-role="meter"></span></div>
+      </article>
+
+      <article class="panel tile" data-stage="leads">
+        <header class="tile__head">
+          <span class="tile__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8m0 2c-4 0-7 2.2-7 5v1h14v-1c0-2.8-3-5-7-5" fill="currentColor"/></svg>
+          </span>
+          <h3 class="tile__label" data-i18n="leads">Leads</h3>
+          <span class="tile__pct" data-role="pct">0%</span>
+        </header>
+        <p class="tile__value" data-role="value">0</p>
+        <div class="meter" role="presentation"><span class="meter__fill" data-role="meter"></span></div>
+      </article>
+
+      <article class="panel tile" data-stage="customers">
+        <header class="tile__head">
+          <span class="tile__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 3h10v2.2c0 2.3-1.3 4.3-3.2 5.3v1c1.9 1 3.2 3 3.2 5.3V19H7v-2.2c0-2.3 1.3-4.3 3.2-5.3v-1C8.3 9.5 7 7.5 7 5.2zM5 2h14v2H5zm0 18h14v2H5z" fill="currentColor"/></svg>
+          </span>
+          <h3 class="tile__label" data-i18n="customers">Customers</h3>
+          <span class="tile__pct" data-role="pct">0%</span>
+        </header>
+        <p class="tile__value" data-role="value">0</p>
+        <div class="meter" role="presentation"><span class="meter__fill" data-role="meter"></span></div>
+      </article>
+    </section>
+
+    <section class="panel sliders" aria-labelledby="sliders-h">
+      <h2 id="sliders-h" class="sr-only">Response rates</h2>
+
+      <div class="slider">
+        <label for="f-lrr" data-i18n="leadResponseRate">Lead Response Rate</label>
+        <input type="range" id="f-lrr" min="1" max="100" step="0.5" value="40"
+               aria-describedby="f-lrr-out">
+        <output id="f-lrr-out" for="f-lrr">40.00%</output>
+      </div>
+
+      <div class="slider">
+        <label for="f-prr" data-i18n="prospectResponseRate">Prospect Response Rate</label>
+        <input type="range" id="f-prr" min="1" max="100" step="0.5" value="20"
+               aria-describedby="f-prr-out">
+        <output id="f-prr-out" for="f-prr">20.00%</output>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
