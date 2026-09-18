@@ -40,6 +40,15 @@
 
   --accent: #3987e5;
 
+  /* Filled-button blues. --accent itself is a hairline/outline accent: white
+     13px text on it reaches only 3.64:1, short of the 4.5:1 AA needs, so a
+     solid button steps down a shade. These three clear white text (4.98 /
+     4.68 / 5.17) and still hold 3:1 against --surface-1 (3.29 / 3.50 / 3.17)
+     so the button's own edge stays a visible boundary under WCAG 1.4.11. */
+  --accent-fill:        #2a6fc9;
+  --accent-fill-hover:  #2e74cc;
+  --accent-fill-active: #2b6cc6;
+
   --radius-lg: 18px;
   --radius-md: 12px;
   --radius-sm: 9px;
@@ -252,6 +261,87 @@ input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
   border: 1px solid rgb(236 131 90 / 0.3);
   border-radius: var(--radius-sm);
 }
+
+/* ── Sidebar actions ───────────────────────────────────────────────────── */
+
+/* Stacked, not side by side: the sidebar leaves 220px of content width, and a
+   translated label ("Zurücksetzen", "Изтегли CSV") plus its icon does not fit
+   in half of that without wrapping. */
+.sidebar__actions {
+  display: grid;
+  gap: 9px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 13px; font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s, box-shadow .18s;
+}
+.btn:hover { background: var(--surface-3); color: var(--text-primary); }
+.btn:active { background: var(--surface-2); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Same stroked-icon language as the control affordances: 1.6px on a 1:1
+   viewBox, round caps and joins. Inline SVG here, so it can take currentColor
+   rather than hard-coding --icon the way the data: URIs above must. */
+.btn__icon { flex: none; width: 15px; height: 15px; color: var(--icon); }
+.btn:hover .btn__icon { color: var(--text-primary); }
+
+/* Export is the primary action of the pair; reset stays a quiet outline so the
+   destructive one is not the one that draws the eye. */
+.btn--primary {
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent-fill);
+  border-color: var(--accent-fill);
+  /* Resting contact shadow, same near-black the chart's elevation filters use.
+     Giving it a start value means the hover glow fades in from something
+     rather than interpolating out of `none`. */
+  box-shadow: 0 1px 2px rgb(3 6 10 / 0.35);
+}
+
+/* Glow on hover, and on keyboard focus too so both routes to the button get
+   the same feedback. Two blurred layers, no spread: a halo in the accent's
+   lighter step that reads as light coming off the button, over a deeper cast
+   that keeps it sitting on the panel instead of floating. Purely a box-shadow,
+   so nothing around it reflows. */
+.btn--primary:hover,
+.btn--primary:focus-visible {
+  color: #fff;
+  background: var(--accent-fill-hover);
+  border-color: var(--accent-fill-hover);
+  box-shadow:
+    0 0 11px rgb(91 160 240 / 0.20),
+    0 3px 9px rgb(42 111 201 / 0.22);
+}
+
+/* Pressed sits back down: the glow drops away and the contact shadow tightens. */
+.btn--primary:active {
+  background: var(--accent-fill-active);
+  border-color: var(--accent-fill-active);
+  box-shadow: 0 0 4px rgb(91 160 240 / 0.10), 0 1px 2px rgb(3 6 10 / 0.4);
+}
+.btn--primary .btn__icon,
+.btn--primary:hover .btn__icon { color: currentColor; }
+
+/* An --accent ring sits two shades off the fill it surrounds and reads as a
+   halo rather than a ring; a light one separates cleanly from both the button
+   (4.47:1) and the panel behind it (14.69:1). */
+.btn--primary:focus-visible { outline-color: var(--text-primary); }
 
 /* ── Stage ─────────────────────────────────────────────────────────────── */
 

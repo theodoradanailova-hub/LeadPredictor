@@ -33,6 +33,13 @@
       tableCaption: 'Cumulative totals at the end of each campaign month.',
       warnDates: 'Campaign end must be after the campaign start.',
       warnAov: 'Average order value must be greater than zero.',
+      reset: 'Reset values', exportCsv: 'Download CSV',
+      resetHint: 'Restore every input to its default value',
+      exportHint: 'Download your inputs and the monthly funnel table as a CSV file',
+      resetDone: 'All values restored to their defaults.',
+      exportDone: 'CSV file downloaded.',
+      date: 'Date', csvSetting: 'Setting', csvValue: 'Value',
+      csvGenerated: 'Generated',
       chartDescTpl: 'Horizontal stacked bars over {n} months. By the end of the campaign: {p} prospects, {l} leads, {c} customers.'
     },
     bg: {
@@ -51,6 +58,13 @@
       tableCaption: 'Натрупани стойности в края на всеки месец от кампанията.',
       warnDates: 'Краят на кампанията трябва да е след началото.',
       warnAov: 'Средната стойност на поръчка трябва да е по-голяма от нула.',
+      reset: 'Нулиране', exportCsv: 'Изтегли CSV',
+      resetHint: 'Връща всички полета към стойностите им по подразбиране',
+      exportHint: 'Изтегля въведените данни и месечната таблица като CSV файл',
+      resetDone: 'Всички стойности са върнати по подразбиране.',
+      exportDone: 'CSV файлът е изтеглен.',
+      date: 'Дата', csvSetting: 'Настройка', csvValue: 'Стойност',
+      csvGenerated: 'Генериран на',
       chartDescTpl: 'Хоризонтални наслоени стълбове за {n} месеца. В края на кампанията: {p} потенциални клиенти, {l} лийда, {c} клиенти.'
     },
     de: {
@@ -69,6 +83,13 @@
       tableCaption: 'Kumulierte Werte am Ende jedes Kampagnenmonats.',
       warnDates: 'Das Kampagnenende muss nach dem Start liegen.',
       warnAov: 'Der Ø Bestellwert muss größer als null sein.',
+      reset: 'Zurücksetzen', exportCsv: 'CSV herunterladen',
+      resetHint: 'Alle Eingaben auf ihre Standardwerte zurücksetzen',
+      exportHint: 'Eingaben und Monatstabelle als CSV-Datei herunterladen',
+      resetDone: 'Alle Werte wurden zurückgesetzt.',
+      exportDone: 'CSV-Datei heruntergeladen.',
+      date: 'Datum', csvSetting: 'Einstellung', csvValue: 'Wert',
+      csvGenerated: 'Erstellt am',
       chartDescTpl: 'Horizontale gestapelte Balken über {n} Monate. Am Ende der Kampagne: {p} Interessenten, {l} Leads, {c} Kunden.'
     }
   };
@@ -107,6 +128,9 @@
     tooltip:   $('#tooltip'),
     tableWrap: $('#table-view'),
     tableBtn:  $('#table-toggle'),
+    resetBtn:  $('#btn-reset'),
+    exportBtn: $('#btn-export'),
+    status:    $('#action-status'),
     tiles:     document.querySelectorAll('.tile')
   };
 
@@ -235,6 +259,11 @@
     document.querySelectorAll('[data-i18n]').forEach((node) => {
       const key = node.dataset.i18n;
       if (m.t[key]) node.textContent = m.t[key];
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach((node) => {
+      const key = node.dataset.i18nTitle;
+      if (m.t[key]) node.title = m.t[key];
     });
 
     const symbol = currencySymbol(m.locale, m.currency);
@@ -577,6 +606,109 @@
     el.tableWrap.appendChild(table);
   }
 
+  // ── Reset & CSV export ──────────────────────────────────────────────────
+
+  /* Defaults are read off the markup (the value attribute / defaultSelected),
+     never a snapshot taken at load: some browsers restore form fields on a
+     soft reload, and a snapshot would then freeze the restored values in as
+     the "defaults". index.html stays the single source of truth. */
+  const RESETTABLE = [
+    el.language, el.currency, el.start, el.end, el.revenue, el.aov,
+    el.lrr, el.prr
+  ];
+
+  function markupDefault(node) {
+    if (node.tagName === 'SELECT') {
+      const opt = Array.from(node.options).find((o) => o.defaultSelected)
+        || node.options[0];
+      return opt ? opt.value : '';
+    }
+    return node.defaultValue;
+  }
+
+  /* A live region is not re-announced when it is set to the string it already
+     holds, so clear it first and write on the next tick. */
+  function announce(message) {
+    el.status.textContent = '';
+    setTimeout(() => { el.status.textContent = message; }, 60);
+  }
+
+  function resetAll() {
+    RESETTABLE.forEach((node) => { node.value = markupDefault(node); });
+    render();
+    announce(model.t.resetDone);
+  }
+
+  const csvCell = (v) => {
+    const str = String(v ?? '');
+    return /[",;\n\r]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+  };
+  const csvRow = (cells) => cells.map(csvCell).join(',');
+
+  /* Labels follow the chosen language; numbers and dates deliberately do not.
+     A spreadsheet parses 1234.5 and 2026-05-08, not "1.234,5" or "8 May 2026",
+     so the machine-readable forms go in the file and the locale formatting
+     stays on screen. */
+  /* ISO calendar date in the viewer's own timezone. toISOString() would be a
+     day off for everyone east of UTC before their local 03:00. */
+  function isoToday() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  function buildCsv(m) {
+    const pct = (v) => `${(v * 100).toFixed(2)}%`;
+    const today = isoToday();
+
+    const lines = [
+      csvRow(['LeadPredictor']),
+      csvRow([m.t.csvGenerated, today]),
+      '',
+      csvRow([m.t.csvSetting, m.t.csvValue]),
+      csvRow([m.t.campaignStart, el.start.value]),
+      csvRow([m.t.campaignEnd, el.end.value]),
+      csvRow([m.t.currency, m.currency]),
+      csvRow([m.t.totalRevenue, m.revenue]),
+      csvRow([m.t.avgOrderValue, m.aov]),
+      csvRow([m.t.leadResponseRate, pct(m.lrr)]),
+      csvRow([m.t.prospectResponseRate, pct(m.prr)]),
+      csvRow([m.t.prospects, Math.round(m.prospects)]),
+      csvRow([m.t.leads, Math.round(m.leads)]),
+      csvRow([m.t.customers, Math.round(m.customers)]),
+      '',
+      csvRow([m.t.month, m.t.date, m.t.prospects, m.t.leads, m.t.customers])
+    ];
+
+    for (const row of m.rows) {
+      lines.push(csvRow([
+        row.index,
+        row.date ? row.date.toISOString().slice(0, 7) : '',
+        Math.round(row.prospects),
+        Math.round(row.leads),
+        Math.round(row.customers)
+      ]));
+    }
+    return lines.join('\r\n');
+  }
+
+  function exportCsv() {
+    const m = model;
+    // The BOM is what makes Excel read the file as UTF-8; without it the
+    // Cyrillic and German labels arrive mojibaked.
+    const blob = new Blob(['\uFEFF' + buildCsv(m)],
+      { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `leadpredictor-${isoToday()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    announce(m.t.exportDone);
+  }
+
   // ── Orchestration ───────────────────────────────────────────────────────
 
   let model = null;
@@ -616,6 +748,9 @@
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
   });
+
+  el.resetBtn.addEventListener('click', resetAll);
+  el.exportBtn.addEventListener('click', exportCsv);
 
   el.tableBtn.addEventListener('click', () => {
     const open = el.tableBtn.getAttribute('aria-expanded') === 'true';
