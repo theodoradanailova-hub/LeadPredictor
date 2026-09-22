@@ -1,4 +1,5 @@
 # LeadPredictor
+<img width="1303" height="784" alt="image" src="https://github.com/user-attachments/assets/3801f035-d853-4345-ad17-5f5368a82905" />
 
 A single-page campaign calculator. You give it a revenue goal and two conversion
 rates; it tells you how many prospects, leads and customers the campaign needs,
